@@ -12,9 +12,9 @@
 
 ## 📦 Download & Release
 - **Tải bản portable hoặc bản cài đặt mới nhất tại:**
-  [👉 Trang Release trên GitHub](https://github.com/yourusername/2do-desktop/releases)
+  [👉 Trang Release trên GitHub](https://github.com/d4kw1n/2d0-app-wallpaper/releases)
 - **Donate ủng hộ tác giả:**
-  [☕ Buy Me a Coffee](https://www.buymeacoffee.com/yourusername)
+  [☕ Buy Me a Coffee](https://www.buymeacoffee.com/shr3wd)
 
 ## 🖥️ Hướng dẫn cài đặt & sử dụng
 
@@ -60,7 +60,7 @@ pyinstaller --onefile --windowed --icon=assets/logo.png --add-data "assets:asset
 
 ## 💡 Đóng góp & Liên hệ
 - Đóng góp code, báo lỗi, góp ý: tạo issue hoặc pull request trên GitHub
-- Donate ủng hộ tác giả: [☕ Buy Me a Coffee](https://www.buymeacoffee.com/yourusername)
+- Donate ủng hộ tác giả: [☕ Buy Me a Coffee](https://www.buymeacoffee.com/shr3wd)
 
 ---
 
