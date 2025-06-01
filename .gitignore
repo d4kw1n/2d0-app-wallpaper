@@ -23,6 +23,7 @@ var/
 .installed.cfg
 *.egg
 MANIFEST
+release/
 
 # Installer logs
 debug.log
@@ -54,6 +55,10 @@ coverage.xml
 *.dll
 *.zip
 *.tar.gz
+*.AppImage
+*.deb
+*.rpm
+*.sh
 
 # Virtual environments
 venv/
@@ -73,6 +78,10 @@ env/
 # Windows
 Thumbs.db
 Desktop.ini
+
+# Inno Setup
+Output/
+*.iss~
 
 # Assets (optional, nếu muốn giữ lại thì xóa dòng này)
 #assets/*.tmp 
