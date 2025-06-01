@@ -61,8 +61,3 @@ pyinstaller --onefile --windowed --icon=assets/logo.png --add-data "assets:asset
 ## 💡 Đóng góp & Liên hệ
 - Đóng góp code, báo lỗi, góp ý: tạo issue hoặc pull request trên GitHub
 - Donate ủng hộ tác giả: [☕ Buy Me a Coffee](https://www.buymeacoffee.com/shr3wd)
-
----
-
-## License
-MIT 

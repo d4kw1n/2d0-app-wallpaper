@@ -20,11 +20,6 @@ SPI_SETDESKWALLPAPER = 0x0014
 SPIF_UPDATEINIFILE = 0x01
 SPIF_SENDCHANGE = 0x02
 
-def resource_path(relative_path):
-    if hasattr(sys, '_MEIPASS'):
-        return os.path.join(sys._MEIPASS, relative_path)
-    return os.path.join(os.path.abspath("."), relative_path)
-
 class TaskManager(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -75,8 +70,8 @@ class TaskManager(QMainWindow):
         }
         self.setWindowTitle("Task Manager")
         self.setMinimumSize(600, 700)
-        self.setWindowIcon(QIcon(resource_path("assets/logo.ico")))
         
+        # Top bar for theme and language
         self.theme_box = QComboBox()
         self.theme_box.addItems(["Dark", "Light"])
         self.theme_box.currentIndexChanged.connect(self.change_theme)
@@ -105,6 +100,7 @@ class TaskManager(QMainWindow):
         daily_tab = QWidget()
         daily_layout = QVBoxLayout(daily_tab)
         
+        # Tạo input field và nút thêm task
         input_layout = QHBoxLayout()
         self.task_input = QLineEdit()
         self.task_input.setPlaceholderText(self.translations[self.language]['input_task'])
@@ -114,11 +110,13 @@ class TaskManager(QMainWindow):
         input_layout.addWidget(self.add_button)
         daily_layout.addLayout(input_layout)
         
+        # Tạo list widget để hiển thị tasks
         self.task_list = QListWidget()
         self.task_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.task_list.customContextMenuRequested.connect(self.task_menu)
         daily_layout.addWidget(self.task_list)
         
+        # Tab Monthly Goals
         monthly_tab = QWidget()
         monthly_layout = QVBoxLayout(monthly_tab)
         
@@ -135,6 +133,7 @@ class TaskManager(QMainWindow):
         self.monthly_list.customContextMenuRequested.connect(self.monthly_goal_menu)
         monthly_layout.addWidget(self.monthly_list)
         
+        # Tab Long-term Goals
         longterm_tab = QWidget()
         longterm_layout = QVBoxLayout(longterm_tab)
         
@@ -151,10 +150,12 @@ class TaskManager(QMainWindow):
         self.longterm_list.customContextMenuRequested.connect(self.longterm_goal_menu)
         longterm_layout.addWidget(self.longterm_list)
         
+        # Thêm các tab
         self.tab_widget.addTab(daily_tab, self.translations[self.language]['tab_today'])
         self.tab_widget.addTab(monthly_tab, self.translations[self.language]['tab_monthly'])
         self.tab_widget.addTab(longterm_tab, self.translations[self.language]['tab_longterm'])
         
+        # Tạo nút để tạo hình ảnh và đặt làm hình nền
         button_layout = QHBoxLayout()
         self.create_image_button = QPushButton(self.translations[self.language]['create_image'])
         self.create_image_button.clicked.connect(self.create_task_image)
@@ -164,14 +165,18 @@ class TaskManager(QMainWindow):
         button_layout.addWidget(self.set_wallpaper_button)
         layout.addLayout(button_layout)
         
+        # Tạo system tray icon
         self.create_tray_icon()
         
+        # Tạo thư mục để lưu hình ảnh nếu chưa tồn tại
         if not os.path.exists("images"):
             os.makedirs("images")
             
+        # Tạo thư mục để lưu dữ liệu nếu chưa tồn tại
         if not os.path.exists("data"):
             os.makedirs("data")
             
+        # Load dữ liệu đã lưu
         self.load_data()
         self.apply_theme()
         self.apply_language()
@@ -180,8 +185,9 @@ class TaskManager(QMainWindow):
 
     def create_tray_icon(self):
         self.tray_icon = QSystemTrayIcon(self)
-        self.tray_icon.setIcon(QIcon(resource_path("assets/icon.png")))
+        self.tray_icon.setIcon(QIcon("icon.png"))
         self.tray_icon.setVisible(True)
+        # Menu chuột phải
         tray_menu = QMenu()
         open_action = QAction("Open", self)
         exit_action = QAction("Exit", self)
@@ -190,10 +196,11 @@ class TaskManager(QMainWindow):
         tray_menu.addAction(open_action)
         tray_menu.addAction(exit_action)
         self.tray_icon.setContextMenu(tray_menu)
+        # Click trái vào icon
         self.tray_icon.activated.connect(self.on_tray_icon_activated)
 
     def on_tray_icon_activated(self, reason):
-        if reason == QSystemTrayIcon.ActivationReason.Trigger:
+        if reason == QSystemTrayIcon.ActivationReason.Trigger:  # Click trái
             self.show_window_from_tray()
 
     def show_window_from_tray(self):
@@ -324,6 +331,7 @@ class TaskManager(QMainWindow):
                     item = QListWidgetItem(goal['text'])
                     if goal.get('done'): item.setFont(self.strike_font(item.font()))
                     self.longterm_list.addItem(item)
+            # GỌI check_and_clear_daily_tasks() SAU KHI ĐÃ LOAD TASK
             self.check_and_clear_daily_tasks()
         except FileNotFoundError:
             pass
@@ -337,19 +345,23 @@ class TaskManager(QMainWindow):
         app.quit()
 
     def create_task_image(self):
+        # Lấy kích thước màn hình
         screen_width = win32api.GetSystemMetrics(0)
         screen_height = win32api.GetSystemMetrics(1)
         
+        # Sử dụng theme cho hình ảnh
         bg_color = '#1e1e1e' if self.theme == 'dark' else '#f0f0f0'
         text_color = '#ffffff' if self.theme == 'dark' else '#222222'
         border_color = '#3d3d3d' if self.theme == 'dark' else '#cccccc'
         grid_color = '#2d2d2d' if self.theme == 'dark' else '#e0e0e0'
         
+        # Tạo hình ảnh mới với kích thước màn hình và nền tối
         image = Image.new('RGB', (screen_width, screen_height), color=bg_color)
         draw = ImageDraw.Draw(image)
         
+        # Sử dụng font Unicode (DejaVuSans.ttf) nếu có, nếu không thì dùng font mặc định
         try:
-            font_path = resource_path("assets/DejaVuSans.ttf")
+            font_path = "DejaVuSans.ttf"  # Hãy tải font này tại https://dejavu-fonts.github.io/ và đặt vào thư mục dự án để emoji ☐, ☑ hiển thị đẹp
             title_font = ImageFont.truetype(font_path, 50)
             subtitle_font = ImageFont.truetype(font_path, 35)
             text_font = ImageFont.truetype(font_path, 30)
@@ -358,17 +370,22 @@ class TaskManager(QMainWindow):
             subtitle_font = ImageFont.load_default()
             text_font = ImageFont.load_default()
         
+        # Vẽ tiêu đề lớn
         t = self.translations[self.language]
         draw.text((50, 50), f"{t['title']} - {datetime.now().strftime('%d/%m/%Y')}", fill=text_color, font=title_font)
         draw.line([(50, 120), (screen_width - 50, 120)], fill=border_color, width=3)
+        # Tính toán vị trí các cột
         margin = 50
         col_width = (screen_width - 2 * margin) // 3
         col_x = [margin + i * col_width for i in range(3)]
+        # Vẽ các tiêu đề mục theo hàng ngang
         y_title = 140
         draw.text((col_x[0], y_title), t['today'], fill='#ff6b6b', font=subtitle_font)
         draw.text((col_x[1], y_title), t['monthly'], fill='#4dabf7', font=subtitle_font)
         draw.text((col_x[2], y_title), t['longterm'], fill='#51cf66', font=subtitle_font)
+        # Vẽ các task theo cột dọc bên dưới từng tiêu đề
         y_start = y_title + 50
+        # Công việc hôm nay
         y = y_start
         for i in range(self.task_list.count()):
             item = self.task_list.item(i)
@@ -378,6 +395,7 @@ class TaskManager(QMainWindow):
             color = text_color if not done else '#888888'
             draw.text((col_x[0], y), f"{emoji} {text}", fill=color, font=text_font)
             y += 40
+        # Mục tiêu tháng
         y = y_start
         for i in range(self.monthly_list.count()):
             item = self.monthly_list.item(i)
@@ -387,6 +405,7 @@ class TaskManager(QMainWindow):
             color = text_color if not done else '#888888'
             draw.text((col_x[1], y), f"{emoji} {text}", fill=color, font=text_font)
             y += 40
+        # Mục tiêu dài hạn
         y = y_start
         for i in range(self.longterm_list.count()):
             item = self.longterm_list.item(i)
@@ -396,12 +415,15 @@ class TaskManager(QMainWindow):
             color = text_color if not done else '#888888'
             draw.text((col_x[2], y), f"{emoji} {text}", fill=color, font=text_font)
             y += 40
+        # Vẽ khung trang trí
         draw.rectangle([(30, 30), (screen_width - 30, screen_height - 30)], 
                       outline=border_color, width=5)
+        # Vẽ các đường trang trí
         for i in range(0, screen_width, 100):
             draw.line([(i, 30), (i, screen_height - 30)], fill=grid_color, width=1)
         for i in range(0, screen_height, 100):
             draw.line([(30, i), (screen_width - 30, i)], fill=grid_color, width=1)
+        # Lưu hình ảnh
         image_path = os.path.join("images", "tasks.png")
         image.save(image_path)
         return image_path
@@ -409,16 +431,20 @@ class TaskManager(QMainWindow):
     def set_wallpaper(self):
         try:
             image_path = self.create_task_image()
+            # Chuyển đổi đường dẫn tương đối thành đường dẫn tuyệt đối
             abs_image_path = os.path.abspath(image_path)
             
+            # Thử phương pháp 1: sử dụng win32gui
             try:
                 win32gui.SystemParametersInfo(win32con.SPI_SETDESKWALLPAPER, abs_image_path, 3)
             except:
+                # Nếu phương pháp 1 thất bại, thử phương pháp 2: sử dụng ctypes
                 user32 = ctypes.WinDLL('user32')
                 SystemParametersInfo = user32.SystemParametersInfoW
                 SystemParametersInfo.argtypes = ctypes.c_uint, ctypes.c_uint, ctypes.c_void_p, ctypes.c_uint
                 SystemParametersInfo.restype = ctypes.c_bool
                 
+                # Chuyển đổi đường dẫn thành chuỗi Unicode
                 path = abs_image_path.encode('utf-16le') + b'\0'
                 SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, path, SPIF_UPDATEINIFILE | SPIF_SENDCHANGE)
         except Exception as e:
@@ -510,10 +536,8 @@ class TaskManager(QMainWindow):
         if self.auto_clear_daily and self.last_date != today:
             if self.task_list.count() > 0:
                 self.task_list.clear()
-                self.last_date = today
-                self.save_data()
-            else:
-                self.last_date = today
+            self.last_date = today
+            self.save_data()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
