@@ -12,6 +12,7 @@
 
 ## 📦 Download & Release
 - **Tải bản portable hoặc bản cài đặt mới nhất tại:**
+  - Hiện tại bản `portable` ổn định hơn, bản `setup` đang được fix lỗi
   [👉 Trang Release trên GitHub](https://github.com/d4kw1n/2d0-app-wallpaper/releases)
 - **Donate ủng hộ tác giả:**
   [☕ Buy Me a Coffee](https://www.buymeacoffee.com/shr3wd)
