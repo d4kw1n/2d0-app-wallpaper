@@ -3,8 +3,33 @@
   "language": "vi",
   "auto_wallpaper": true,
   "auto_clear_daily": true,
-  "last_date": "2025-06-01",
-  "daily_tasks": [],
-  "monthly_goals": [],
-  "longterm_goals": []
+  "last_date": "2025-06-02",
+  "daily_tasks": [
+    {
+      "text": "hello",
+      "done": false
+    },
+    {
+      "text": "fqw",
+      "done": false
+    },
+    {
+      "text": "12",
+      "done": false
+    }
+  ],
+  "tomorrow_tasks": [],
+  "daily_recurring_tasks": [],
+  "monthly_goals": [
+    {
+      "text": "fqw",
+      "done": false
+    }
+  ],
+  "longterm_goals": [
+    {
+      "text": "gqwgqw",
+      "done": false
+    }
+  ]
 }

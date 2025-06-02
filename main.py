@@ -31,12 +31,18 @@ class TaskManager(QMainWindow):
         self.translations = {
             'vi': {
                 'today': 'Công việc hôm nay:',
+                'tomorrow': 'Công việc ngày mai:',
+                'daily': 'Công việc hằng ngày:',
                 'monthly': 'Mục tiêu tháng:',
                 'longterm': 'Mục tiêu dài hạn:',
                 'add_task': 'Thêm',
+                'add_tomorrow': 'Thêm công việc ngày mai',
+                'add_daily': 'Thêm công việc hằng ngày',
                 'add_monthly': 'Thêm mục tiêu tháng',
                 'add_longterm': 'Thêm mục tiêu dài hạn',
                 'input_task': 'Nhập task mới...',
+                'input_tomorrow': 'Nhập công việc ngày mai...',
+                'input_daily': 'Nhập công việc hằng ngày...',
                 'input_monthly': 'Nhập mục tiêu tháng...',
                 'input_longterm': 'Nhập mục tiêu dài hạn...',
                 'create_image': 'Tạo hình ảnh',
@@ -45,17 +51,25 @@ class TaskManager(QMainWindow):
                 'delete': 'Xóa',
                 'title': 'Kế hoạch công việc',
                 'tab_today': 'Công việc hôm nay',
+                'tab_tomorrow': 'Công việc ngày mai',
+                'tab_daily': 'Công việc hằng ngày',
                 'tab_monthly': 'Mục tiêu tháng',
                 'tab_longterm': 'Mục tiêu dài hạn',
             },
             'en': {
                 'today': 'Today Tasks:',
+                'tomorrow': 'Tomorrow Tasks:',
+                'daily': 'Daily Tasks:',
                 'monthly': 'Monthly Goals:',
                 'longterm': 'Long-term Goals:',
                 'add_task': 'Add',
+                'add_tomorrow': 'Add Tomorrow Task',
+                'add_daily': 'Add Daily Task',
                 'add_monthly': 'Add Monthly Goal',
                 'add_longterm': 'Add Long-term Goal',
                 'input_task': 'Enter new task...',
+                'input_tomorrow': 'Enter tomorrow task...',
+                'input_daily': 'Enter daily task...',
                 'input_monthly': 'Enter monthly goal...',
                 'input_longterm': 'Enter long-term goal...',
                 'create_image': 'Create Image',
@@ -64,6 +78,8 @@ class TaskManager(QMainWindow):
                 'delete': 'Delete',
                 'title': 'Task Planner',
                 'tab_today': 'Today',
+                'tab_tomorrow': 'Tomorrow',
+                'tab_daily': 'Daily',
                 'tab_monthly': 'Monthly Goals',
                 'tab_longterm': 'Long-term Goals',
             }
@@ -97,10 +113,10 @@ class TaskManager(QMainWindow):
         self.tab_widget = QTabWidget()
         layout.addWidget(self.tab_widget)
         
+        # Tab Today
         daily_tab = QWidget()
         daily_layout = QVBoxLayout(daily_tab)
         
-        # Tạo input field và nút thêm task
         input_layout = QHBoxLayout()
         self.task_input = QLineEdit()
         self.task_input.setPlaceholderText(self.translations[self.language]['input_task'])
@@ -110,11 +126,46 @@ class TaskManager(QMainWindow):
         input_layout.addWidget(self.add_button)
         daily_layout.addLayout(input_layout)
         
-        # Tạo list widget để hiển thị tasks
         self.task_list = QListWidget()
         self.task_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.task_list.customContextMenuRequested.connect(self.task_menu)
         daily_layout.addWidget(self.task_list)
+
+        # Tab Tomorrow
+        tomorrow_tab = QWidget()
+        tomorrow_layout = QVBoxLayout(tomorrow_tab)
+        
+        tomorrow_input_layout = QHBoxLayout()
+        self.tomorrow_input = QLineEdit()
+        self.tomorrow_input.setPlaceholderText(self.translations[self.language]['input_tomorrow'])
+        self.tomorrow_add_btn = QPushButton(self.translations[self.language]['add_tomorrow'])
+        self.tomorrow_add_btn.clicked.connect(self.add_tomorrow_task)
+        tomorrow_input_layout.addWidget(self.tomorrow_input)
+        tomorrow_input_layout.addWidget(self.tomorrow_add_btn)
+        tomorrow_layout.addLayout(tomorrow_input_layout)
+        
+        self.tomorrow_list = QListWidget()
+        self.tomorrow_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.tomorrow_list.customContextMenuRequested.connect(self.tomorrow_task_menu)
+        tomorrow_layout.addWidget(self.tomorrow_list)
+
+        # Tab Daily Tasks
+        daily_tasks_tab = QWidget()
+        daily_tasks_layout = QVBoxLayout(daily_tasks_tab)
+        
+        daily_tasks_input_layout = QHBoxLayout()
+        self.daily_tasks_input = QLineEdit()
+        self.daily_tasks_input.setPlaceholderText(self.translations[self.language]['input_daily'])
+        self.daily_tasks_add_btn = QPushButton(self.translations[self.language]['add_daily'])
+        self.daily_tasks_add_btn.clicked.connect(self.add_daily_task)
+        daily_tasks_input_layout.addWidget(self.daily_tasks_input)
+        daily_tasks_input_layout.addWidget(self.daily_tasks_add_btn)
+        daily_tasks_layout.addLayout(daily_tasks_input_layout)
+        
+        self.daily_tasks_list = QListWidget()
+        self.daily_tasks_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.daily_tasks_list.customContextMenuRequested.connect(self.daily_task_menu)
+        daily_tasks_layout.addWidget(self.daily_tasks_list)
         
         # Tab Monthly Goals
         monthly_tab = QWidget()
@@ -150,12 +201,14 @@ class TaskManager(QMainWindow):
         self.longterm_list.customContextMenuRequested.connect(self.longterm_goal_menu)
         longterm_layout.addWidget(self.longterm_list)
         
-        # Thêm các tab
+        # Add all tabs
         self.tab_widget.addTab(daily_tab, self.translations[self.language]['tab_today'])
+        self.tab_widget.addTab(tomorrow_tab, self.translations[self.language]['tab_tomorrow'])
+        self.tab_widget.addTab(daily_tasks_tab, self.translations[self.language]['tab_daily'])
         self.tab_widget.addTab(monthly_tab, self.translations[self.language]['tab_monthly'])
         self.tab_widget.addTab(longterm_tab, self.translations[self.language]['tab_longterm'])
         
-        # Tạo nút để tạo hình ảnh và đặt làm hình nền
+        # Create image and set wallpaper buttons
         button_layout = QHBoxLayout()
         self.create_image_button = QPushButton(self.translations[self.language]['create_image'])
         self.create_image_button.clicked.connect(self.create_task_image)
@@ -165,27 +218,26 @@ class TaskManager(QMainWindow):
         button_layout.addWidget(self.set_wallpaper_button)
         layout.addLayout(button_layout)
         
-        # Tạo system tray icon
+        # Create system tray icon
         self.create_tray_icon()
         
-        # Tạo thư mục để lưu hình ảnh nếu chưa tồn tại
+        # Create directories if they don't exist
         if not os.path.exists("images"):
             os.makedirs("images")
-            
-        # Tạo thư mục để lưu dữ liệu nếu chưa tồn tại
         if not os.path.exists("data"):
             os.makedirs("data")
             
-        # Load dữ liệu đã lưu
+        # Load saved data
         self.load_data()
         self.apply_theme()
         self.apply_language()
         self.auto_wallpaper_checkbox.setChecked(self.auto_wallpaper)
         self.auto_clear_checkbox.setChecked(self.auto_clear_daily)
+        self.save_data()
 
     def create_tray_icon(self):
         self.tray_icon = QSystemTrayIcon(self)
-        self.tray_icon.setIcon(QIcon("icon.png"))
+        self.tray_icon.setIcon(QIcon("assets/icon.png"))
         self.tray_icon.setVisible(True)
         # Menu chuột phải
         tray_menu = QMenu()
@@ -218,6 +270,26 @@ class TaskManager(QMainWindow):
             if self.auto_wallpaper:
                 self.set_wallpaper()
 
+    def add_tomorrow_task(self):
+        text = self.tomorrow_input.text().strip()
+        if text:
+            item = QListWidgetItem(text)
+            self.tomorrow_list.addItem(item)
+            self.tomorrow_input.clear()
+            self.save_data()
+            if self.auto_wallpaper:
+                self.set_wallpaper()
+
+    def add_daily_task(self):
+        text = self.daily_tasks_input.text().strip()
+        if text:
+            item = QListWidgetItem(text)
+            self.daily_tasks_list.addItem(item)
+            self.daily_tasks_input.clear()
+            self.save_data()
+            if self.auto_wallpaper:
+                self.set_wallpaper()
+
     def add_monthly_goal(self):
         text = self.monthly_input.text().strip()
         if text:
@@ -225,6 +297,8 @@ class TaskManager(QMainWindow):
             self.monthly_list.addItem(item)
             self.monthly_input.clear()
             self.save_data()
+            if self.auto_wallpaper:
+                self.set_wallpaper()
 
     def add_longterm_goal(self):
         text = self.longterm_input.text().strip()
@@ -233,6 +307,8 @@ class TaskManager(QMainWindow):
             self.longterm_list.addItem(item)
             self.longterm_input.clear()
             self.save_data()
+            if self.auto_wallpaper:
+                self.set_wallpaper()
 
     def monthly_goal_menu(self, pos):
         item = self.monthly_list.itemAt(pos)
@@ -282,6 +358,38 @@ class TaskManager(QMainWindow):
                 self.task_list.takeItem(self.task_list.row(item))
                 self.save_data()
 
+    def tomorrow_task_menu(self, pos):
+        item = self.tomorrow_list.itemAt(pos)
+        if item:
+            menu = QPopupMenu(self)
+            mark_action = menu.addAction(self.translations[self.language]['mark_done'])
+            delete_action = menu.addAction(self.translations[self.language]['delete'])
+            action = menu.exec(self.tomorrow_list.mapToGlobal(pos))
+            if action == mark_action:
+                font = item.font()
+                font.setStrikeOut(not font.strikeOut())
+                item.setFont(font)
+                self.save_data()
+            elif action == delete_action:
+                self.tomorrow_list.takeItem(self.tomorrow_list.row(item))
+                self.save_data()
+
+    def daily_task_menu(self, pos):
+        item = self.daily_tasks_list.itemAt(pos)
+        if item:
+            menu = QPopupMenu(self)
+            mark_action = menu.addAction(self.translations[self.language]['mark_done'])
+            delete_action = menu.addAction(self.translations[self.language]['delete'])
+            action = menu.exec(self.daily_tasks_list.mapToGlobal(pos))
+            if action == mark_action:
+                font = item.font()
+                font.setStrikeOut(not font.strikeOut())
+                item.setFont(font)
+                self.save_data()
+            elif action == delete_action:
+                self.daily_tasks_list.takeItem(self.daily_tasks_list.row(item))
+                self.save_data()
+
     def save_data(self):
         data = {
             'theme': self.theme,
@@ -292,6 +400,14 @@ class TaskManager(QMainWindow):
             'daily_tasks': [
                 {'text': self.task_list.item(i).text(), 'done': self.task_list.item(i).font().strikeOut()}
                 for i in range(self.task_list.count())
+            ],
+            'tomorrow_tasks': [
+                {'text': self.tomorrow_list.item(i).text(), 'done': self.tomorrow_list.item(i).font().strikeOut()}
+                for i in range(self.tomorrow_list.count())
+            ],
+            'daily_recurring_tasks': [
+                {'text': self.daily_tasks_list.item(i).text(), 'done': self.daily_tasks_list.item(i).font().strikeOut()}
+                for i in range(self.daily_tasks_list.count())
             ],
             'monthly_goals': [
                 {'text': self.monthly_list.item(i).text(), 'done': self.monthly_list.item(i).font().strikeOut()}
@@ -318,20 +434,33 @@ class TaskManager(QMainWindow):
                 self.lang_box.setCurrentIndex(0 if self.language == 'vi' else 1)
                 self.auto_wallpaper_checkbox.setChecked(self.auto_wallpaper)
                 self.auto_clear_checkbox.setChecked(self.auto_clear_daily)
+                
                 # Load tasks
                 for task in data.get('daily_tasks', []):
                     item = QListWidgetItem(task['text'])
                     if task.get('done'): item.setFont(self.strike_font(item.font()))
                     self.task_list.addItem(item)
+                
+                for task in data.get('tomorrow_tasks', []):
+                    item = QListWidgetItem(task['text'])
+                    if task.get('done'): item.setFont(self.strike_font(item.font()))
+                    self.tomorrow_list.addItem(item)
+                
+                for task in data.get('daily_recurring_tasks', []):
+                    item = QListWidgetItem(task['text'])
+                    if task.get('done'): item.setFont(self.strike_font(item.font()))
+                    self.daily_tasks_list.addItem(item)
+                
                 for goal in data.get('monthly_goals', []):
                     item = QListWidgetItem(goal['text'])
                     if goal.get('done'): item.setFont(self.strike_font(item.font()))
                     self.monthly_list.addItem(item)
+                
                 for goal in data.get('longterm_goals', []):
                     item = QListWidgetItem(goal['text'])
                     if goal.get('done'): item.setFont(self.strike_font(item.font()))
                     self.longterm_list.addItem(item)
-            # GỌI check_and_clear_daily_tasks() SAU KHI ĐÃ LOAD TASK
+                
             self.check_and_clear_daily_tasks()
         except FileNotFoundError:
             pass
@@ -345,23 +474,23 @@ class TaskManager(QMainWindow):
         app.quit()
 
     def create_task_image(self):
-        # Lấy kích thước màn hình
+        # Get screen size
         screen_width = win32api.GetSystemMetrics(0)
         screen_height = win32api.GetSystemMetrics(1)
         
-        # Sử dụng theme cho hình ảnh
+        # Use theme for image
         bg_color = '#1e1e1e' if self.theme == 'dark' else '#f0f0f0'
         text_color = '#ffffff' if self.theme == 'dark' else '#222222'
         border_color = '#3d3d3d' if self.theme == 'dark' else '#cccccc'
         grid_color = '#2d2d2d' if self.theme == 'dark' else '#e0e0e0'
         
-        # Tạo hình ảnh mới với kích thước màn hình và nền tối
+        # Create new image with screen size and dark background
         image = Image.new('RGB', (screen_width, screen_height), color=bg_color)
         draw = ImageDraw.Draw(image)
         
-        # Sử dụng font Unicode (DejaVuSans.ttf) nếu có, nếu không thì dùng font mặc định
+        # Use Unicode font if available
         try:
-            font_path = "DejaVuSans.ttf"  # Hãy tải font này tại https://dejavu-fonts.github.io/ và đặt vào thư mục dự án để emoji ☐, ☑ hiển thị đẹp
+            font_path = "DejaVuSans.ttf"
             title_font = ImageFont.truetype(font_path, 50)
             subtitle_font = ImageFont.truetype(font_path, 35)
             text_font = ImageFont.truetype(font_path, 30)
@@ -370,22 +499,26 @@ class TaskManager(QMainWindow):
             subtitle_font = ImageFont.load_default()
             text_font = ImageFont.load_default()
         
-        # Vẽ tiêu đề lớn
+        # Draw main title
         t = self.translations[self.language]
         draw.text((50, 50), f"{t['title']} - {datetime.now().strftime('%d/%m/%Y')}", fill=text_color, font=title_font)
         draw.line([(50, 120), (screen_width - 50, 120)], fill=border_color, width=3)
-        # Tính toán vị trí các cột
+        
+        # Calculate column positions
         margin = 50
         col_width = (screen_width - 2 * margin) // 3
         col_x = [margin + i * col_width for i in range(3)]
-        # Vẽ các tiêu đề mục theo hàng ngang
+        
+        # Draw section titles
         y_title = 140
         draw.text((col_x[0], y_title), t['today'], fill='#ff6b6b', font=subtitle_font)
-        draw.text((col_x[1], y_title), t['monthly'], fill='#4dabf7', font=subtitle_font)
-        draw.text((col_x[2], y_title), t['longterm'], fill='#51cf66', font=subtitle_font)
-        # Vẽ các task theo cột dọc bên dưới từng tiêu đề
+        draw.text((col_x[1], y_title), t['tomorrow'], fill='#4dabf7', font=subtitle_font)
+        draw.text((col_x[2], y_title), t['daily'], fill='#51cf66', font=subtitle_font)
+        
+        # Draw tasks in columns
         y_start = y_title + 50
-        # Công việc hôm nay
+        
+        # Today's tasks
         y = y_start
         for i in range(self.task_list.count()):
             item = self.task_list.item(i)
@@ -395,35 +528,40 @@ class TaskManager(QMainWindow):
             color = text_color if not done else '#888888'
             draw.text((col_x[0], y), f"{emoji} {text}", fill=color, font=text_font)
             y += 40
-        # Mục tiêu tháng
+        
+        # Tomorrow's tasks
         y = y_start
-        for i in range(self.monthly_list.count()):
-            item = self.monthly_list.item(i)
+        for i in range(self.tomorrow_list.count()):
+            item = self.tomorrow_list.item(i)
             text = item.text()
             done = item.font().strikeOut()
             emoji = "☐" if not done else "☑"
             color = text_color if not done else '#888888'
             draw.text((col_x[1], y), f"{emoji} {text}", fill=color, font=text_font)
             y += 40
-        # Mục tiêu dài hạn
+        
+        # Daily recurring tasks
         y = y_start
-        for i in range(self.longterm_list.count()):
-            item = self.longterm_list.item(i)
+        for i in range(self.daily_tasks_list.count()):
+            item = self.daily_tasks_list.item(i)
             text = item.text()
             done = item.font().strikeOut()
             emoji = "☐" if not done else "☑"
             color = text_color if not done else '#888888'
             draw.text((col_x[2], y), f"{emoji} {text}", fill=color, font=text_font)
             y += 40
-        # Vẽ khung trang trí
+        
+        # Draw decorative frame
         draw.rectangle([(30, 30), (screen_width - 30, screen_height - 30)], 
                       outline=border_color, width=5)
-        # Vẽ các đường trang trí
+        
+        # Draw decorative grid
         for i in range(0, screen_width, 100):
             draw.line([(i, 30), (i, screen_height - 30)], fill=grid_color, width=1)
         for i in range(0, screen_height, 100):
             draw.line([(30, i), (screen_width - 30, i)], fill=grid_color, width=1)
-        # Lưu hình ảnh
+        
+        # Save image
         image_path = os.path.join("images", "tasks.png")
         image.save(image_path)
         return image_path
@@ -444,7 +582,6 @@ class TaskManager(QMainWindow):
                 SystemParametersInfo.argtypes = ctypes.c_uint, ctypes.c_uint, ctypes.c_void_p, ctypes.c_uint
                 SystemParametersInfo.restype = ctypes.c_bool
                 
-                # Chuyển đổi đường dẫn thành chuỗi Unicode
                 path = abs_image_path.encode('utf-16le') + b'\0'
                 SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, path, SPIF_UPDATEINIFILE | SPIF_SENDCHANGE)
         except Exception as e:
@@ -482,37 +619,236 @@ class TaskManager(QMainWindow):
     def apply_theme(self):
         if self.theme == "dark":
             self.setStyleSheet("""
-                QMainWindow { background-color: #1e1e1e; }
-                QWidget { background-color: #1e1e1e; color: #ffffff; }
-                QTabWidget::pane { border: 1px solid #3d3d3d; background-color: #1e1e1e; }
-                QTabBar::tab { background-color: #2d2d2d; color: #ffffff; padding: 8px 16px; border: 1px solid #3d3d3d; }
-                QTabBar::tab:selected { background-color: #3d3d3d; }
-                QLineEdit, QTextEdit { background-color: #2d2d2d; color: #ffffff; border: 1px solid #3d3d3d; padding: 5px; }
-                QPushButton { background-color: #0d47a1; color: white; border: none; padding: 8px 16px; border-radius: 4px; }
-                QPushButton:hover { background-color: #1565c0; }
-                QListWidget { background-color: #2d2d2d; color: #ffffff; border: 1px solid #3d3d3d; }
-                QListWidget::item { padding: 5px; }
-                QListWidget::item:selected { background-color: #3d3d3d; }
+                QMainWindow { 
+                    background-color: #1a1a1a;
+                }
+                QWidget { 
+                    background-color: #1a1a1a; 
+                    color: #ffffff;
+                    font-family: 'Segoe UI', Arial, sans-serif;
+                }
+                QTabWidget::pane { 
+                    border: 1px solid #2d2d2d; 
+                    background-color: #1a1a1a;
+                    border-radius: 8px;
+                }
+                QTabBar::tab { 
+                    background-color: #2d2d2d; 
+                    color: #ffffff; 
+                    padding: 10px 20px; 
+                    border: none;
+                    border-top-left-radius: 8px;
+                    border-top-right-radius: 8px;
+                    margin-right: 2px;
+                }
+                QTabBar::tab:selected { 
+                    background-color: #3d3d3d;
+                    border-bottom: 2px solid #0d47a1;
+                }
+                QTabBar::tab:hover:!selected {
+                    background-color: #363636;
+                }
+                QLineEdit, QTextEdit { 
+                    background-color: #2d2d2d; 
+                    color: #ffffff; 
+                    border: 1px solid #3d3d3d; 
+                    padding: 8px;
+                    border-radius: 6px;
+                    selection-background-color: #0d47a1;
+                }
+                QLineEdit:focus, QTextEdit:focus {
+                    border: 1px solid #0d47a1;
+                }
+                QPushButton { 
+                    background-color: #0d47a1; 
+                    color: white; 
+                    border: none; 
+                    padding: 10px 20px; 
+                    border-radius: 6px;
+                    font-weight: bold;
+                }
+                QPushButton:hover { 
+                    background-color: #1565c0;
+                    transition: background-color 0.3s;
+                }
+                QPushButton:pressed {
+                    background-color: #0a3d91;
+                }
+                QListWidget { 
+                    background-color: #2d2d2d; 
+                    color: #ffffff; 
+                    border: 1px solid #3d3d3d;
+                    border-radius: 8px;
+                    padding: 5px;
+                }
+                QListWidget::item { 
+                    padding: 8px;
+                    border-radius: 4px;
+                    margin: 2px 0px;
+                }
+                QListWidget::item:selected { 
+                    background-color: #0d47a1;
+                }
+                QListWidget::item:hover:!selected {
+                    background-color: #363636;
+                }
+                QComboBox {
+                    background-color: #2d2d2d;
+                    color: #ffffff;
+                    border: 1px solid #3d3d3d;
+                    border-radius: 6px;
+                    padding: 5px 10px;
+                    min-width: 6em;
+                }
+                QComboBox:hover {
+                    border: 1px solid #0d47a1;
+                }
+                QComboBox::drop-down {
+                    border: none;
+                }
+                QComboBox::down-arrow {
+                    image: url(assets/down-arrow.png);
+                    width: 12px;
+                    height: 12px;
+                }
+                QCheckBox {
+                    spacing: 8px;
+                }
+                QCheckBox::indicator {
+                    width: 18px;
+                    height: 18px;
+                    border: 2px solid #3d3d3d;
+                    border-radius: 4px;
+                }
+                QCheckBox::indicator:checked {
+                    background-color: #0d47a1;
+                    border: 2px solid #0d47a1;
+                }
+                QCheckBox::indicator:hover {
+                    border: 2px solid #0d47a1;
+                }
             """)
         else:
             self.setStyleSheet("""
-                QMainWindow { background-color: #f0f0f0; }
-                QWidget { background-color: #f0f0f0; color: #222222; }
-                QTabWidget::pane { border: 1px solid #cccccc; background-color: #f0f0f0; }
-                QTabBar::tab { background-color: #e0e0e0; color: #222222; padding: 8px 16px; border: 1px solid #cccccc; }
-                QTabBar::tab:selected { background-color: #ffffff; }
-                QLineEdit, QTextEdit { background-color: #ffffff; color: #222222; border: 1px solid #cccccc; padding: 5px; }
-                QPushButton { background-color: #1976d2; color: white; border: none; padding: 8px 16px; border-radius: 4px; }
-                QPushButton:hover { background-color: #42a5f5; }
-                QListWidget { background-color: #ffffff; color: #222222; border: 1px solid #cccccc; }
-                QListWidget::item { padding: 5px; }
-                QListWidget::item:selected { background-color: #e0e0e0; }
+                QMainWindow { 
+                    background-color: #f5f5f5;
+                }
+                QWidget { 
+                    background-color: #f5f5f5; 
+                    color: #333333;
+                    font-family: 'Segoe UI', Arial, sans-serif;
+                }
+                QTabWidget::pane { 
+                    border: 1px solid #e0e0e0; 
+                    background-color: #ffffff;
+                    border-radius: 8px;
+                }
+                QTabBar::tab { 
+                    background-color: #f0f0f0; 
+                    color: #333333; 
+                    padding: 10px 20px; 
+                    border: none;
+                    border-top-left-radius: 8px;
+                    border-top-right-radius: 8px;
+                    margin-right: 2px;
+                }
+                QTabBar::tab:selected { 
+                    background-color: #ffffff;
+                    border-bottom: 2px solid #1976d2;
+                }
+                QTabBar::tab:hover:!selected {
+                    background-color: #f8f8f8;
+                }
+                QLineEdit, QTextEdit { 
+                    background-color: #ffffff; 
+                    color: #333333; 
+                    border: 1px solid #e0e0e0; 
+                    padding: 8px;
+                    border-radius: 6px;
+                    selection-background-color: #1976d2;
+                }
+                QLineEdit:focus, QTextEdit:focus {
+                    border: 1px solid #1976d2;
+                }
+                QPushButton { 
+                    background-color: #1976d2; 
+                    color: white; 
+                    border: none; 
+                    padding: 10px 20px; 
+                    border-radius: 6px;
+                    font-weight: bold;
+                }
+                QPushButton:hover { 
+                    background-color: #42a5f5;
+                    transition: background-color 0.3s;
+                }
+                QPushButton:pressed {
+                    background-color: #1565c0;
+                }
+                QListWidget { 
+                    background-color: #ffffff; 
+                    color: #333333; 
+                    border: 1px solid #e0e0e0;
+                    border-radius: 8px;
+                    padding: 5px;
+                }
+                QListWidget::item { 
+                    padding: 8px;
+                    border-radius: 4px;
+                    margin: 2px 0px;
+                }
+                QListWidget::item:selected { 
+                    background-color: #1976d2;
+                    color: white;
+                }
+                QListWidget::item:hover:!selected {
+                    background-color: #f5f5f5;
+                }
+                QComboBox {
+                    background-color: #ffffff;
+                    color: #333333;
+                    border: 1px solid #e0e0e0;
+                    border-radius: 6px;
+                    padding: 5px 10px;
+                    min-width: 6em;
+                }
+                QComboBox:hover {
+                    border: 1px solid #1976d2;
+                }
+                QComboBox::drop-down {
+                    border: none;
+                }
+                QComboBox::down-arrow {
+                    image: url(assets/down-arrow.png);
+                    width: 12px;
+                    height: 12px;
+                }
+                QCheckBox {
+                    spacing: 8px;
+                }
+                QCheckBox::indicator {
+                    width: 18px;
+                    height: 18px;
+                    border: 2px solid #e0e0e0;
+                    border-radius: 4px;
+                }
+                QCheckBox::indicator:checked {
+                    background-color: #1976d2;
+                    border: 2px solid #1976d2;
+                }
+                QCheckBox::indicator:hover {
+                    border: 2px solid #1976d2;
+                }
             """)
 
     def apply_language(self):
         t = self.translations[self.language]
         self.task_input.setPlaceholderText(t['input_task'])
         self.add_button.setText(t['add_task'])
+        self.tomorrow_input.setPlaceholderText(t['input_tomorrow'])
+        self.tomorrow_add_btn.setText(t['add_tomorrow'])
+        self.daily_tasks_input.setPlaceholderText(t['input_daily'])
+        self.daily_tasks_add_btn.setText(t['add_daily'])
         self.monthly_input.setPlaceholderText(t['input_monthly'])
         self.monthly_add_btn.setText(t['add_monthly'])
         self.longterm_input.setPlaceholderText(t['input_longterm'])
@@ -520,8 +856,10 @@ class TaskManager(QMainWindow):
         self.create_image_button.setText(t['create_image'])
         self.set_wallpaper_button.setText(t['set_wallpaper'])
         self.tab_widget.setTabText(0, t['tab_today'])
-        self.tab_widget.setTabText(1, t['tab_monthly'])
-        self.tab_widget.setTabText(2, t['tab_longterm'])
+        self.tab_widget.setTabText(1, t['tab_tomorrow'])
+        self.tab_widget.setTabText(2, t['tab_daily'])
+        self.tab_widget.setTabText(3, t['tab_monthly'])
+        self.tab_widget.setTabText(4, t['tab_longterm'])
 
     def toggle_auto_wallpaper(self, state):
         self.auto_wallpaper = bool(state)
@@ -534,8 +872,22 @@ class TaskManager(QMainWindow):
     def check_and_clear_daily_tasks(self):
         today = datetime.now().strftime('%Y-%m-%d')
         if self.auto_clear_daily and self.last_date != today:
-            if self.task_list.count() > 0:
-                self.task_list.clear()
+            # Move tomorrow's tasks to today
+            for i in range(self.tomorrow_list.count()):
+                item = self.tomorrow_list.item(0)
+                self.task_list.addItem(item.text())
+                self.tomorrow_list.takeItem(0)
+            
+            # Clear today's tasks
+            self.task_list.clear()
+            
+            # Reset daily recurring tasks
+            for i in range(self.daily_tasks_list.count()):
+                item = self.daily_tasks_list.item(i)
+                font = item.font()
+                font.setStrikeOut(False)
+                item.setFont(font)
+            
             self.last_date = today
             self.save_data()
 
